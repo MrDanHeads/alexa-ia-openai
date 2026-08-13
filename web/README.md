@@ -60,53 +60,48 @@ src/
    la lógica de árbol, sin backend) — el agendamiento (`slots`/`confirmed`) es
    simulado; email, WhatsApp, LinkedIn, la descarga del CV y el formulario de
    contacto sí son reales.
-2. **Configurar `N8N_CONTACT_WEBHOOK_URL` en el entorno de producción** (ver
-   abajo) — sin esa variable, el formulario de contacto responde con un error
-   claro en vez de fallar en silencio.
+2. **Configurar `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS` en el entorno
+   de producción** (ver abajo) — sin esas variables, el formulario de
+   contacto responde con un error claro en vez de fallar en silencio.
 
-## Formulario de contacto → n8n
+## Formulario de contacto → email por SMTP
 
 `Contact.tsx` es un formulario controlado que hace `POST` a
 `src/app/api/contact/route.ts` (Route Handler propio, no expuesto al
-cliente), el cual valida los campos server-side y reenvía el payload a un
-**Webhook de n8n**.
+cliente), el cual valida los campos server-side y **envía un correo directo a
+`dxcabezasg@gmail.com`** (constante `EMAIL` en `src/lib/constants.ts`) vía
+SMTP con `nodemailer` — sin pasar por n8n.
 
-1. En n8n, crea un workflow con un nodo **Webhook** (método `POST`) como
-   trigger.
-2. Configura `N8N_CONTACT_WEBHOOK_URL` con su URL — copia `.env.example` a
-   `.env.local` en desarrollo, o defínela como variable de entorno en tu
-   plataforma de hosting (Vercel, etc.) para producción.
+> La integración con n8n (webhook → workflow) queda **pausada por ahora** a
+> pedido explícito; el código de esa ruta se reemplazó por el envío directo
+> de correo. Si más adelante se retoma, puede convivir con el envío por SMTP
+> o reemplazarlo — ver la sección "Formulario de contacto → n8n" en el
+> historial de git de este README para la versión anterior.
 
-   > ⚠️ **URL de prueba vs. de producción.** El nodo Webhook de n8n muestra
-   > dos URLs: `/webhook-test/<id>` (solo responde mientras tienes "Listen
-   > for test event" activo en el editor, y se apaga tras el primer disparo
-   > — sirve para probar, no para el sitio en vivo) y `/webhook/<id>` (activa
-   > permanentemente en cuanto el workflow está **Active**, es la que debe
-   > usar producción). Antes de publicar el sitio, cambia
-   > `N8N_CONTACT_WEBHOOK_URL` a la URL `/webhook/...` y activa el workflow.
-3. El nodo Webhook de n8n recibe este JSON; a partir de ahí puedes ramificar
-   a email (ej. nodo Gmail/SMTP a `dxcabezasg@gmail.com`), a un CRM ligero
-   (Notion/Airtable) o a donde prefieras:
-
-   ```json
-   {
-     "name": "string",
-     "email": "string",
-     "company": "string | null",
-     "service": "string | null",
-     "message": "string",
-     "lang": "es" | "en",
-     "source": "danilocabezas.com",
-     "submittedAt": "2026-08-13T20:44:00.000Z"
-   }
+1. Copia `.env.example` a `.env.local` en desarrollo, o define las variables
+   en tu plataforma de hosting (Vercel, etc.) para producción.
+2. Camino más rápido — **Gmail App Password** sobre la propia cuenta
+   `dxcabezasg@gmail.com`: Google Account → Security → 2-Step Verification →
+   App passwords → genera una para "Mail", y úsala como `SMTP_PASS`:
    ```
-
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=465
+   SMTP_USER=dxcabezasg@gmail.com
+   SMTP_PASS=<contraseña de aplicación de 16 caracteres>
+   ```
+   Cualquier otro proveedor SMTP (Zoho, SES, Postmark, el correo del hosting
+   de danilocabezas.com...) funciona igual, solo cambia estas variables.
+3. El correo llega con **Reply-To** apuntando al email de quien escribió, así
+   que basta con darle "Responder" en Gmail para contestarle directo. Incluye
+   nombre, email, empresa, servicio de interés, idioma del sitio y el
+   mensaje.
 4. El formulario incluye un **honeypot** (`website`, visualmente oculto):
-   si llega lleno, la ruta responde éxito falso y **no** reenvía nada a
-   n8n — filtra bots simples sin que el usuario real lo note.
-5. Si `N8N_CONTACT_WEBHOOK_URL` no está definida, o n8n no responde,
-   `Contact.tsx` muestra el mensaje de error localizado (`t.contact.error`)
-   sugiriendo escribir directo al correo.
+   si llega lleno, la ruta responde éxito falso y **no** envía ningún correo
+   — filtra bots simples sin que el usuario real lo note.
+5. Si faltan las variables SMTP, o el envío falla (credenciales inválidas,
+   proveedor caído), `Contact.tsx` muestra el mensaje de error localizado
+   (`t.contact.error`) sugiriendo escribir directo al correo, y conserva lo
+   que el usuario escribió (no limpia el formulario en error).
 
 ## Contacto y assets reales
 

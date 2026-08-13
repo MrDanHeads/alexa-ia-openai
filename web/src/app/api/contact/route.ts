@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
+import { EMAIL } from "@/lib/constants";
+import { buildContactEmail } from "@/lib/contactEmail";
 
 export const runtime = "nodejs";
 
@@ -47,37 +50,35 @@ export async function POST(request: Request) {
   }
   if (message.length > 5000) return badRequest("field_too_long");
 
-  const webhookUrl = process.env.N8N_CONTACT_WEBHOOK_URL;
-  if (!webhookUrl) {
-    console.error("N8N_CONTACT_WEBHOOK_URL is not set — contact form cannot forward submissions.");
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
+    console.error("SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS are not fully set — contact form cannot send email.");
     return NextResponse.json({ ok: false, error: "not_configured" }, { status: 503 });
   }
 
-  try {
-    const upstream = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        email,
-        company: company || null,
-        service: service || null,
-        message,
-        lang,
-        source: "danilocabezas.com",
-        submittedAt: new Date().toISOString(),
-      }),
-      // n8n webhooks can be slow to cold-start; don't hang the request forever.
-      signal: AbortSignal.timeout(10_000),
-    });
+  const port = Number(SMTP_PORT);
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port,
+    secure: process.env.SMTP_SECURE === "true" || port === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
 
-    if (!upstream.ok) {
-      console.error(`n8n webhook responded with ${upstream.status}`);
-      return NextResponse.json({ ok: false, error: "upstream_error" }, { status: 502 });
-    }
+  const submittedAt = new Date().toISOString();
+  const { subject, text, html } = buildContactEmail({ name, email, company, service, message, lang, submittedAt });
+
+  try {
+    await transporter.sendMail({
+      from: `"Sitio web — Danilo Cabezas" <${SMTP_USER}>`,
+      to: EMAIL,
+      replyTo: email,
+      subject,
+      text,
+      html,
+    });
   } catch (err) {
-    console.error("Failed to reach n8n webhook:", err);
-    return NextResponse.json({ ok: false, error: "upstream_unreachable" }, { status: 502 });
+    console.error("Failed to send contact email:", err);
+    return NextResponse.json({ ok: false, error: "send_failed" }, { status: 502 });
   }
 
   return NextResponse.json({ ok: true });
