@@ -54,14 +54,17 @@ src/
 
 ## Pendiente antes de publicar
 
-1. **Fotografía profesional** — reemplaza el círculo con iniciales "DC" en
-   `Hero.tsx` y `About.tsx`.
-2. **Teléfono y URL real de LinkedIn** — están marcados como placeholder en
+1. **Teléfono y URL real de LinkedIn** — están marcados como placeholder en
    `Contact.tsx` / `translations.ts` (`phonePlaceholder`, `linkedinPlaceholder`).
-3. **CV en PDF** (ES y EN) — el botón "Descargar CV" del header/hero apunta a
+2. **CV en PDF** (ES y EN) — el botón "Descargar CV" del header/hero apunta a
    `href="#"`; falta enlazar el archivo real.
-4. **Integración real del chatbot** con Typebot + Cal.com (hoy es una demo de
+3. **Integración real del chatbot** con Typebot + Cal.com (hoy es una demo de
    la lógica de árbol, sin backend).
-5. **Formulario de contacto** — hoy no envía datos a ningún lado
+4. **Formulario de contacto** — hoy no envía datos a ningún lado
    (`onSubmit` con `preventDefault`); falta conectar a un endpoint, servicio de
    formularios o el propio flujo de N8N.
+
+## Assets
+
+`public/images/danilo-cabezas.jpg` — foto de perfil, usada en `Hero.tsx` (retrato
+principal) y `About.tsx` (avatar de la sección "Sobre mí") vía `next/image`.

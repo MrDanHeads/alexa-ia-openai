@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { AgentFlowCanvas } from "./AgentFlowCanvas";
 
@@ -53,16 +54,18 @@ export function Hero() {
         </div>
 
         <div className="order-first justify-self-center md:order-none">
-          <div className="relative flex h-[min(280px,60vw)] w-[min(280px,60vw)] items-center justify-center rounded-full border-[1.5px] border-sky before:content-[''] before:absolute before:-inset-3.5 before:rounded-full before:border before:border-dashed before:border-hairline-strong"
-            style={{ background: "radial-gradient(circle at 35% 30%, rgba(20,101,187,.55), rgba(0,32,77,.2))" }}
-          >
-            <span className="text-[3.2rem] text-mint sm:text-[4.6rem]" style={{ fontFamily: "var(--font-display)" }}>
-              DC
-            </span>
+          <div className="relative h-[min(280px,60vw)] w-[min(280px,60vw)] before:content-[''] before:absolute before:-inset-3.5 before:rounded-full before:border before:border-dashed before:border-hairline-strong">
+            <div className="relative h-full w-full overflow-hidden rounded-full border-[1.5px] border-sky">
+              <Image
+                src="/images/danilo-cabezas.jpg"
+                alt={t.hero.portraitAlt}
+                fill
+                sizes="280px"
+                className="object-cover"
+                priority
+              />
+            </div>
           </div>
-          <p className="mt-3 text-center font-mono text-[0.66rem] tracking-wide text-paper-dim uppercase">
-            {t.hero.portraitCaption}
-          </p>
         </div>
       </div>
     </section>

@@ -42,14 +42,17 @@ export function AgentFlowCanvas() {
       ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       // Keep the diagram clear of the headline column on the left — it only
-      // occupies the right-hand band where the portrait sits.
+      // occupies the right-hand band where the portrait sits. The two middle
+      // nodes sit above/below the portrait photo rather than behind it (its
+      // circle is opaque, unlike the earlier placeholder gradient).
       const nodeHalfWidth = 44;
       const xStart = w * 0.56;
       const xEnd = w - nodeHalfWidth - 16;
       const cols = LABELS.length;
+      const yOffsets = [-60, -175, 175, 60];
       nodes = LABELS.map((label, i) => {
         const x = xStart + (xEnd - xStart) * (i / (cols - 1));
-        const y = h * 0.5 + (i % 2 === 0 ? -70 : 70);
+        const y = h * 0.5 + yOffsets[i];
         return { x, y, w: 88, h: 30, label, phase: i * 1.4, currentY: y };
       });
     }

@@ -20,7 +20,7 @@ export interface Dictionary {
     titleAfter: string;
     sub: string;
     metrics: { value: string; label: string }[];
-    portraitCaption: string;
+    portraitAlt: string;
   };
   services: {
     eyebrow: string;
@@ -43,6 +43,7 @@ export interface Dictionary {
     bio: string;
     metrics: { value: string; label: string }[];
     timeline: { title: string; org: string }[];
+    portraitAlt: string;
   };
   contact: {
     eyebrow: string;
@@ -98,7 +99,7 @@ export const translations: Record<Lang, Dictionary> = {
         { value: "OpenAI", label: "Agentes de IA" },
         { value: "Power BI", label: "Analytics" },
       ],
-      portraitCaption: "Espacio reservado — fotografía profesional",
+      portraitAlt: "Retrato de Danilo Cabezas, CTO y Consultor en IA",
     },
     services: {
       eyebrow: "Portafolio de servicios",
@@ -175,6 +176,7 @@ export const translations: Record<Lang, Dictionary> = {
         { title: "Maestría en Diseño Gráfico Digital", org: "UNIR" },
         { title: "Diplomado en Inteligencia Artificial", org: "UDLA" },
       ],
+      portraitAlt: "Retrato de Danilo Cabezas",
     },
     contact: {
       eyebrow: "Contacto",
@@ -233,7 +235,7 @@ export const translations: Record<Lang, Dictionary> = {
         { value: "OpenAI", label: "AI agents" },
         { value: "Power BI", label: "Analytics" },
       ],
-      portraitCaption: "Reserved space — professional photograph",
+      portraitAlt: "Portrait of Danilo Cabezas, CTO & AI Consultant",
     },
     services: {
       eyebrow: "Service portfolio",
@@ -310,6 +312,7 @@ export const translations: Record<Lang, Dictionary> = {
         { title: "Master's in Digital Graphic Design", org: "UNIR" },
         { title: "Diploma in Artificial Intelligence", org: "UDLA" },
       ],
+      portraitAlt: "Portrait of Danilo Cabezas",
     },
     contact: {
       eyebrow: "Contact",

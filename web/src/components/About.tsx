@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function About() {
@@ -8,13 +9,14 @@ export function About() {
   return (
     <section id="sobre-mi" className="border-t border-hairline py-16 sm:py-24">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-5 sm:gap-14 md:grid-cols-[.55fr_1.45fr]">
-        <div
-          className="flex h-[150px] w-[150px] items-center justify-center rounded-full border-[1.5px] border-sky"
-          style={{ background: "radial-gradient(circle at 35% 30%, rgba(20,101,187,.55), rgba(0,32,77,.2))" }}
-        >
-          <span className="text-4xl text-mint" style={{ fontFamily: "var(--font-display)" }}>
-            DC
-          </span>
+        <div className="relative h-[150px] w-[150px] overflow-hidden rounded-full border-[1.5px] border-sky">
+          <Image
+            src="/images/danilo-cabezas.jpg"
+            alt={t.about.portraitAlt}
+            fill
+            sizes="150px"
+            className="object-cover"
+          />
         </div>
 
         <div>
