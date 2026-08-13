@@ -12,8 +12,9 @@ mockup de alta fidelidad (`danilocabezas-hifi-mockup.html`).
 
 ```bash
 npm install
-npm run dev       # http://localhost:3000
-npm run build     # build de producción
+cp .env.example .env.local   # y completa N8N_CONTACT_WEBHOOK_URL
+npm run dev                    # http://localhost:3000
+npm run build                    # build de producción
 npm run lint
 ```
 
@@ -26,6 +27,7 @@ src/
     page.tsx           # ensambla las secciones del one-page
     icon.tsx            # favicon generado (navy + "DC")
     globals.css          # tokens Tailwind (paleta de marca, tipografías)
+    api/contact/route.ts # POST — valida y reenvia el formulario a n8n
   components/
     Header.tsx           # nav sticky, scroll-spy, toggle ES/EN, menú móvil
     Hero.tsx + AgentFlowCanvas.tsx   # hero + diagrama de flujo animado en canvas
@@ -56,10 +58,47 @@ src/
 
 1. **Integración real del chatbot** con Typebot + Cal.com (hoy es una demo de
    la lógica de árbol, sin backend) — el agendamiento (`slots`/`confirmed`) es
-   simulado; email, WhatsApp, LinkedIn y la descarga del CV sí son reales.
-2. **Formulario de contacto** — hoy no envía datos a ningún lado
-   (`onSubmit` con `preventDefault`); falta conectar a un endpoint, servicio de
-   formularios o el propio flujo de N8N.
+   simulado; email, WhatsApp, LinkedIn, la descarga del CV y el formulario de
+   contacto sí son reales.
+2. **Configurar `N8N_CONTACT_WEBHOOK_URL` en el entorno de producción** (ver
+   abajo) — sin esa variable, el formulario de contacto responde con un error
+   claro en vez de fallar en silencio.
+
+## Formulario de contacto → n8n
+
+`Contact.tsx` es un formulario controlado que hace `POST` a
+`src/app/api/contact/route.ts` (Route Handler propio, no expuesto al
+cliente), el cual valida los campos server-side y reenvía el payload a un
+**Webhook de n8n**.
+
+1. En n8n, crea un workflow con un nodo **Webhook** (método `POST`) como
+   trigger, y copia su URL de producción.
+2. Configura `N8N_CONTACT_WEBHOOK_URL` con esa URL — copia `.env.example` a
+   `.env.local` en desarrollo, o defínela como variable de entorno en tu
+   plataforma de hosting (Vercel, etc.) para producción.
+3. El nodo Webhook de n8n recibe este JSON; a partir de ahí puedes ramificar
+   a email (ej. nodo Gmail/SMTP a `dxcabezasg@gmail.com`), a un CRM ligero
+   (Notion/Airtable) o a donde prefieras:
+
+   ```json
+   {
+     "name": "string",
+     "email": "string",
+     "company": "string | null",
+     "service": "string | null",
+     "message": "string",
+     "lang": "es" | "en",
+     "source": "danilocabezas.com",
+     "submittedAt": "2026-08-13T20:44:00.000Z"
+   }
+   ```
+
+4. El formulario incluye un **honeypot** (`website`, visualmente oculto):
+   si llega lleno, la ruta responde éxito falso y **no** reenvía nada a
+   n8n — filtra bots simples sin que el usuario real lo note.
+5. Si `N8N_CONTACT_WEBHOOK_URL` no está definida, o n8n no responde,
+   `Contact.tsx` muestra el mensaje de error localizado (`t.contact.error`)
+   sugiriendo escribir directo al correo.
 
 ## Contacto y assets reales
 

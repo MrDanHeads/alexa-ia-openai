@@ -57,6 +57,9 @@ export interface Dictionary {
     };
     serviceOptions: string[];
     send: string;
+    sending: string;
+    success: string;
+    error: string;
   };
   footer: {
     rights: string;
@@ -193,6 +196,9 @@ export const translations: Record<Lang, Dictionary> = {
         "Otro",
       ],
       send: "Enviar mensaje →",
+      sending: "Enviando…",
+      success: "¡Mensaje enviado! Te responderé lo antes posible.",
+      error: "No se pudo enviar el mensaje. Intenta de nuevo o escríbeme directo a dxcabezasg@gmail.com.",
     },
     footer: {
       rights: "© 2026 Danilo Cabezas",
@@ -327,6 +333,9 @@ export const translations: Record<Lang, Dictionary> = {
         "Other",
       ],
       send: "Send message →",
+      sending: "Sending…",
+      success: "Message sent! I'll get back to you as soon as possible.",
+      error: "Couldn't send the message. Try again or email me directly at dxcabezasg@gmail.com.",
     },
     footer: {
       rights: "© 2026 Danilo Cabezas",
