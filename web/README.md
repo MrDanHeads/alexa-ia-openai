@@ -72,10 +72,18 @@ cliente), el cual valida los campos server-side y reenvía el payload a un
 **Webhook de n8n**.
 
 1. En n8n, crea un workflow con un nodo **Webhook** (método `POST`) como
-   trigger, y copia su URL de producción.
-2. Configura `N8N_CONTACT_WEBHOOK_URL` con esa URL — copia `.env.example` a
+   trigger.
+2. Configura `N8N_CONTACT_WEBHOOK_URL` con su URL — copia `.env.example` a
    `.env.local` en desarrollo, o defínela como variable de entorno en tu
    plataforma de hosting (Vercel, etc.) para producción.
+
+   > ⚠️ **URL de prueba vs. de producción.** El nodo Webhook de n8n muestra
+   > dos URLs: `/webhook-test/<id>` (solo responde mientras tienes "Listen
+   > for test event" activo en el editor, y se apaga tras el primer disparo
+   > — sirve para probar, no para el sitio en vivo) y `/webhook/<id>` (activa
+   > permanentemente en cuanto el workflow está **Active**, es la que debe
+   > usar producción). Antes de publicar el sitio, cambia
+   > `N8N_CONTACT_WEBHOOK_URL` a la URL `/webhook/...` y activa el workflow.
 3. El nodo Webhook de n8n recibe este JSON; a partir de ahí puedes ramificar
    a email (ej. nodo Gmail/SMTP a `dxcabezasg@gmail.com`), a un CRM ligero
    (Notion/Airtable) o a donde prefieras:
