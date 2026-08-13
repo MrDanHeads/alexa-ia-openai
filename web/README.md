@@ -71,6 +71,8 @@ que Header/Hero/Contact/ChatWidget lean de una sola fuente:
 
 - `public/images/danilo-cabezas.jpg` — foto de perfil (`Hero.tsx`, `About.tsx`).
 - `public/documents/cv-danilo-cabezas-es.pdf` — CV descargable (botón del hero
-  y rama "Descargar CV" del chatbot).
+  y rama "Descargar CV" del chatbot). Versión de **2 páginas, sin la página de
+  referencias personales** del CV original (nombres y celulares de terceros) —
+  no apta para publicarse tal cual en un sitio público.
 - Teléfono, LinkedIn y WhatsApp (`wa.me`) — usados en `Contact.tsx` y en la
   rama "Hablar con Danilo" del `ChatWidget`.
