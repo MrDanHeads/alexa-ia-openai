@@ -9,6 +9,7 @@ export type ChatStateId =
   | "noslot"
   | "cv"
   | "cvsent"
+  | "cvdownloaded"
   | "direct"
   | "email";
 
@@ -16,7 +17,7 @@ export interface ChatOption {
   label: string;
   next: ChatStateId;
   /** Side effect to run when this option is chosen, in addition to the state transition. */
-  action?: "mailto";
+  action?: "mailto" | "download" | "whatsapp" | "linkedin";
 }
 
 export interface ChatNode {
@@ -77,10 +78,10 @@ export const chatFlows: Record<Lang, ChatFlow> = {
       options: [{ label: "Volver al menú", next: "start" }],
     },
     cv: {
-      message:
-        "Aquí tienes mi CV 📄 (archivo pendiente de adjuntar en esta demo). ¿Quieres que también te lo envíe por correo?",
+      message: "Aquí tienes mi CV 📄. ¿Quieres descargarlo ahora o que te lo envíe por correo?",
       options: [
-        { label: "Sí, enviarlo", next: "cvsent" },
+        { label: "📄 Descargar ahora", next: "cvdownloaded", action: "download" },
+        { label: "Enviarlo por correo", next: "cvsent" },
         { label: "Agendar una llamada", next: "area" },
         { label: "No, gracias", next: "start" },
       ],
@@ -89,12 +90,16 @@ export const chatFlows: Record<Lang, ChatFlow> = {
       message: "Perfecto, quedó registrado. ¡Gracias por escribir! 🙌",
       options: [{ label: "Volver al menú", next: "start" }],
     },
+    cvdownloaded: {
+      message: "¡Listo! Tu descarga debería haber comenzado. 🙌",
+      options: [{ label: "Volver al menú", next: "start" }],
+    },
     direct: {
       message: "Puedes escribirle directo a Danilo por:",
       options: [
         { label: "✉ Email", next: "email", action: "mailto" },
-        { label: "💬 WhatsApp", next: "start" },
-        { label: "in LinkedIn", next: "start" },
+        { label: "💬 WhatsApp", next: "start", action: "whatsapp" },
+        { label: "in LinkedIn", next: "start", action: "linkedin" },
       ],
     },
     email: {
@@ -150,9 +155,10 @@ export const chatFlows: Record<Lang, ChatFlow> = {
       options: [{ label: "Back to menu", next: "start" }],
     },
     cv: {
-      message: "Here's my CV 📄 (file pending upload in this demo). Want it emailed to you as well?",
+      message: "Here's my CV 📄. Want to download it now or have it emailed to you?",
       options: [
-        { label: "Yes, email it", next: "cvsent" },
+        { label: "📄 Download now", next: "cvdownloaded", action: "download" },
+        { label: "Email it to me", next: "cvsent" },
         { label: "Book a call", next: "area" },
         { label: "No, thanks", next: "start" },
       ],
@@ -161,12 +167,16 @@ export const chatFlows: Record<Lang, ChatFlow> = {
       message: "Got it, all set. Thanks for reaching out! 🙌",
       options: [{ label: "Back to menu", next: "start" }],
     },
+    cvdownloaded: {
+      message: "Done! Your download should have started. 🙌",
+      options: [{ label: "Back to menu", next: "start" }],
+    },
     direct: {
       message: "You can reach Danilo directly via:",
       options: [
         { label: "✉ Email", next: "email", action: "mailto" },
-        { label: "💬 WhatsApp", next: "start" },
-        { label: "in LinkedIn", next: "start" },
+        { label: "💬 WhatsApp", next: "start", action: "whatsapp" },
+        { label: "in LinkedIn", next: "start", action: "linkedin" },
       ],
     },
     email: {

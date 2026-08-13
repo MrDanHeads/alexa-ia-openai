@@ -2,6 +2,7 @@
 
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { MailIcon, PhoneIcon, LinkedInIcon } from "./icons";
+import { EMAIL, PHONE_DISPLAY, PHONE_HREF, LINKEDIN_URL, LINKEDIN_DISPLAY } from "@/lib/constants";
 
 const fieldClasses =
   "rounded-[3px] border border-hairline-strong bg-navy-deep/50 px-3 py-2.5 text-[0.95rem] text-paper placeholder:text-paper-dim/50";
@@ -68,20 +69,28 @@ export function Contact() {
 
           <div className="flex flex-col gap-3.5">
             <a
-              href="mailto:dxcabezasg@gmail.com"
+              href={`mailto:${EMAIL}`}
               className="flex items-center gap-3 rounded-[3px] border border-hairline-strong px-4 py-3.5 text-[0.92rem] transition-colors hover:border-mint"
             >
               <MailIcon className="h-5 w-5 shrink-0 text-sky" />
-              dxcabezasg@gmail.com
+              {EMAIL}
             </a>
-            <span className="flex items-center gap-3 rounded-[3px] border border-dashed border-hairline-strong px-4 py-3.5 text-[0.92rem] text-paper-dim">
+            <a
+              href={PHONE_HREF}
+              className="flex items-center gap-3 rounded-[3px] border border-hairline-strong px-4 py-3.5 text-[0.92rem] transition-colors hover:border-mint"
+            >
               <PhoneIcon className="h-5 w-5 shrink-0 text-sky" />
-              {t.contact.phonePlaceholder}
-            </span>
-            <span className="flex items-center gap-3 rounded-[3px] border border-dashed border-hairline-strong px-4 py-3.5 text-[0.92rem] text-paper-dim">
+              {PHONE_DISPLAY}
+            </a>
+            <a
+              href={LINKEDIN_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 rounded-[3px] border border-hairline-strong px-4 py-3.5 text-[0.92rem] transition-colors hover:border-mint"
+            >
               <LinkedInIcon className="h-5 w-5 shrink-0 text-sky" />
-              linkedin.com/in/danilo-cabezas <span className="text-xs">{t.contact.linkedinPlaceholder}</span>
-            </span>
+              {LINKEDIN_DISPLAY}
+            </a>
           </div>
         </div>
       </div>

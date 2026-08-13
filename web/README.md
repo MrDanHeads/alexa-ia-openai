@@ -54,17 +54,23 @@ src/
 
 ## Pendiente antes de publicar
 
-1. **Teléfono y URL real de LinkedIn** — están marcados como placeholder en
-   `Contact.tsx` / `translations.ts` (`phonePlaceholder`, `linkedinPlaceholder`).
-2. **CV en PDF** (ES y EN) — el botón "Descargar CV" del header/hero apunta a
-   `href="#"`; falta enlazar el archivo real.
-3. **Integración real del chatbot** con Typebot + Cal.com (hoy es una demo de
-   la lógica de árbol, sin backend).
-4. **Formulario de contacto** — hoy no envía datos a ningún lado
+1. **CV en inglés** — hoy solo existe la versión en español
+   (`public/documents/cv-danilo-cabezas-es.pdf`); el botón "Download CV" en
+   inglés descarga el mismo PDF en español hasta que exista una versión EN.
+2. **Integración real del chatbot** con Typebot + Cal.com (hoy es una demo de
+   la lógica de árbol, sin backend) — el agendamiento (`slots`/`confirmed`) es
+   simulado; email, WhatsApp, LinkedIn y la descarga del CV sí son reales.
+3. **Formulario de contacto** — hoy no envía datos a ningún lado
    (`onSubmit` con `preventDefault`); falta conectar a un endpoint, servicio de
    formularios o el propio flujo de N8N.
 
-## Assets
+## Contacto y assets reales
 
-`public/images/danilo-cabezas.jpg` — foto de perfil, usada en `Hero.tsx` (retrato
-principal) y `About.tsx` (avatar de la sección "Sobre mí") vía `next/image`.
+Centralizados en `src/lib/constants.ts` (email, teléfono, LinkedIn, CV) para
+que Header/Hero/Contact/ChatWidget lean de una sola fuente:
+
+- `public/images/danilo-cabezas.jpg` — foto de perfil (`Hero.tsx`, `About.tsx`).
+- `public/documents/cv-danilo-cabezas-es.pdf` — CV descargable (botón del hero
+  y rama "Descargar CV" del chatbot).
+- Teléfono, LinkedIn y WhatsApp (`wa.me`) — usados en `Contact.tsx` y en la
+  rama "Hablar con Danilo" del `ChatWidget`.

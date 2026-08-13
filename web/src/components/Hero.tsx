@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { AgentFlowCanvas } from "./AgentFlowCanvas";
+import { CV_URL, CV_DOWNLOAD_FILENAME } from "@/lib/constants";
 
 export function Hero() {
   const { t } = useLanguage();
@@ -36,7 +37,8 @@ export function Hero() {
               {t.cta.book}
             </a>
             <a
-              href="#"
+              href={CV_URL}
+              download={CV_DOWNLOAD_FILENAME}
               className="rounded-[3px] border border-sky px-5 py-3 text-sm font-semibold text-mint transition-colors hover:border-mint hover:bg-mint/5"
             >
               {t.cta.cv}

@@ -57,8 +57,6 @@ export interface Dictionary {
     };
     serviceOptions: string[];
     send: string;
-    phonePlaceholder: string;
-    linkedinPlaceholder: string;
   };
   footer: {
     rights: string;
@@ -195,8 +193,6 @@ export const translations: Record<Lang, Dictionary> = {
         "Otro",
       ],
       send: "Enviar mensaje →",
-      phonePlaceholder: "Teléfono — pendiente de agregar",
-      linkedinPlaceholder: "(reemplazar con tu URL)",
     },
     footer: {
       rights: "© 2026 Danilo Cabezas",
@@ -331,8 +327,6 @@ export const translations: Record<Lang, Dictionary> = {
         "Other",
       ],
       send: "Send message →",
-      phonePlaceholder: "Phone — to be added",
-      linkedinPlaceholder: "(replace with your URL)",
     },
     footer: {
       rights: "© 2026 Danilo Cabezas",

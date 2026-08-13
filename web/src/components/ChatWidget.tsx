@@ -2,11 +2,38 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { chatFlows, type ChatStateId } from "@/i18n/chatFlow";
+import { chatFlows, type ChatOption, type ChatStateId } from "@/i18n/chatFlow";
+import { EMAIL, CV_URL, CV_DOWNLOAD_FILENAME, WHATSAPP_NUMBER, LINKEDIN_URL } from "@/lib/constants";
+import type { Lang } from "@/i18n/translations";
 
 interface LogEntry {
   from: "bot" | "user";
   text: string;
+}
+
+const WHATSAPP_MESSAGE: Record<Lang, string> = {
+  es: "Hola Danilo, vengo desde tu sitio web y quiero conversar sobre...",
+  en: "Hi Danilo, I'm reaching out from your website and would like to talk about...",
+};
+
+/** Resolves an option's side effect into real anchor props, or null for a plain button. */
+function linkPropsFor(action: ChatOption["action"], lang: Lang) {
+  switch (action) {
+    case "mailto":
+      return { href: `mailto:${EMAIL}` };
+    case "download":
+      return { href: CV_URL, download: CV_DOWNLOAD_FILENAME };
+    case "whatsapp":
+      return {
+        href: `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE[lang])}`,
+        target: "_blank",
+        rel: "noopener noreferrer",
+      };
+    case "linkedin":
+      return { href: LINKEDIN_URL, target: "_blank", rel: "noopener noreferrer" };
+    default:
+      return null;
+  }
 }
 
 export function ChatWidget() {
@@ -90,13 +117,16 @@ export function ChatWidget() {
               </div>
             ))}
             <div className="flex flex-col gap-2">
-              {node.options.map((opt) =>
-                opt.action === "mailto" ? (
+              {node.options.map((opt) => {
+                const linkProps = linkPropsFor(opt.action, lang);
+                const className =
+                  "rounded-[3px] border border-sky px-2.5 py-2 text-left text-sm transition-colors hover:border-mint hover:bg-mint/5";
+                return linkProps ? (
                   <a
                     key={opt.label}
-                    href="mailto:dxcabezasg@gmail.com"
+                    {...linkProps}
                     onClick={() => choose(opt.label, opt.next)}
-                    className="rounded-[3px] border border-sky px-2.5 py-2 text-left text-sm transition-colors hover:border-mint hover:bg-mint/5"
+                    className={className}
                   >
                     {opt.label}
                   </a>
@@ -105,12 +135,12 @@ export function ChatWidget() {
                     key={opt.label}
                     type="button"
                     onClick={() => choose(opt.label, opt.next)}
-                    className="rounded-[3px] border border-sky px-2.5 py-2 text-left text-sm transition-colors hover:border-mint hover:bg-mint/5"
+                    className={className}
                   >
                     {opt.label}
                   </button>
-                )
-              )}
+                );
+              })}
             </div>
           </div>
 
