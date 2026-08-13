@@ -22,7 +22,7 @@ function linkPropsFor(action: ChatOption["action"], lang: Lang) {
     case "mailto":
       return { href: `mailto:${EMAIL}` };
     case "download":
-      return { href: CV_URL, download: CV_DOWNLOAD_FILENAME };
+      return { href: CV_URL[lang], download: CV_DOWNLOAD_FILENAME[lang] };
     case "whatsapp":
       return {
         href: `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE[lang])}`,

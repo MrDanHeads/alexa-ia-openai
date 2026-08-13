@@ -54,13 +54,10 @@ src/
 
 ## Pendiente antes de publicar
 
-1. **CV en inglés** — hoy solo existe la versión en español
-   (`public/documents/cv-danilo-cabezas-es.pdf`); el botón "Download CV" en
-   inglés descarga el mismo PDF en español hasta que exista una versión EN.
-2. **Integración real del chatbot** con Typebot + Cal.com (hoy es una demo de
+1. **Integración real del chatbot** con Typebot + Cal.com (hoy es una demo de
    la lógica de árbol, sin backend) — el agendamiento (`slots`/`confirmed`) es
    simulado; email, WhatsApp, LinkedIn y la descarga del CV sí son reales.
-3. **Formulario de contacto** — hoy no envía datos a ningún lado
+2. **Formulario de contacto** — hoy no envía datos a ningún lado
    (`onSubmit` con `preventDefault`); falta conectar a un endpoint, servicio de
    formularios o el propio flujo de N8N.
 
@@ -70,9 +67,9 @@ Centralizados en `src/lib/constants.ts` (email, teléfono, LinkedIn, CV) para
 que Header/Hero/Contact/ChatWidget lean de una sola fuente:
 
 - `public/images/danilo-cabezas.jpg` — foto de perfil (`Hero.tsx`, `About.tsx`).
-- `public/documents/cv-danilo-cabezas-es.pdf` — CV descargable (botón del hero
-  y rama "Descargar CV" del chatbot). Versión de **2 páginas, sin la página de
-  referencias personales** del CV original (nombres y celulares de terceros) —
-  no apta para publicarse tal cual en un sitio público.
+- `public/documents/cv-danilo-cabezas-{es,en}.pdf` — CV descargable por idioma
+  (botón del hero y rama "Descargar CV" del chatbot, ambos vía
+  `CV_URL[lang]`). Versión de una página, sin referencias personales de
+  terceros — apta para publicarse en un sitio público.
 - Teléfono, LinkedIn y WhatsApp (`wa.me`) — usados en `Contact.tsx` y en la
   rama "Hablar con Danilo" del `ChatWidget`.

@@ -6,7 +6,7 @@ import { AgentFlowCanvas } from "./AgentFlowCanvas";
 import { CV_URL, CV_DOWNLOAD_FILENAME } from "@/lib/constants";
 
 export function Hero() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   return (
     <section id="inicio" className="relative overflow-hidden pt-16 pb-20 sm:pt-24 sm:pb-24">
@@ -37,8 +37,8 @@ export function Hero() {
               {t.cta.book}
             </a>
             <a
-              href={CV_URL}
-              download={CV_DOWNLOAD_FILENAME}
+              href={CV_URL[lang]}
+              download={CV_DOWNLOAD_FILENAME[lang]}
               className="rounded-[3px] border border-sky px-5 py-3 text-sm font-semibold text-mint transition-colors hover:border-mint hover:bg-mint/5"
             >
               {t.cta.cv}
