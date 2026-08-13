@@ -45,13 +45,14 @@ danilocabezas.com                                   [Home — one-page scroll]
 **Header / navegación principal (sticky, aparece al hacer scroll):**
 
 ```
-[DC]  Danilo Cabezas     Inicio · Servicios · Stack · Sobre mí · Contacto     [Agendar Consultoría]
+[DC]  Danilo Cabezas     Inicio · Servicios · Stack · Sobre mí · Contacto     ES|EN   [Agendar Consultoría]
 ```
 
 - Fondo: Dark Navy `#003785` con blur al hacer sticky.
 - Link activo (scroll-spy): subrayado o texto en Cyan Mentha `#B9FFFF`.
 - CTA principal siempre visible: botón sólido Vibrant Blue `#2196F3`.
-- Elemento flotante persistente en todas las secciones: **widget de chatbot** (bottom-right).
+- Toggle **ES|EN**: idioma activo en Cyan Mentha, inactivo en Sky Blue muted; persiste la elección en `localStorage`.
+- Elemento flotante persistente en todas las secciones: **widget de chatbot** (bottom-right), también bilingüe según el idioma activo.
 
 ---
 
@@ -275,13 +276,36 @@ Estado expandido:
 
 ---
 
-## 4. RFI — Preguntas abiertas antes de iniciar diseño visual
+## 4. Decisiones confirmadas (RFI resuelto)
 
-1. **Herramienta de agendamiento del chatbot:** ¿Calendly embebido (rápido, prediseñado), Typebot (flujo 100% conversacional y personalizable, se integra bien con N8N), o Cal.com (open-source, más control)? Esto define la arquitectura técnica del flujo.
-2. **Estructura del sitio:** ¿one-page scroll (recomendado para lanzamiento rápido) o multi-página con URLs propias por sección (mejor para SEO a futuro, más esfuerzo de build)?
-3. **Idioma:** ¿el sitio nace bilingüe ES/EN (recomendado si apuntas a clientes internacionales) o solo español para el MVP, con inglés en Fase 2?
+| # | Punto | Decisión |
+|---|---|---|
+| 1 | Motor de agendamiento | **Typebot + Cal.com** — flujo 100% conversacional dentro del widget, orquestado vía N8N |
+| 2 | Estructura del sitio | **One-page scroll** con anclas |
+| 3 | Idioma | **Bilingüe ES/EN desde el lanzamiento** |
 
-## Supuestos hechos para esta v1 (ajustables)
-- Arquitectura one-page con anclas + 2 páginas utilitarias (CV, privacidad).
+### Implicaciones de diseño de estas decisiones
+
+**Typebot + Cal.com:**
+- El bloque de agendamiento (Rama 1 del árbol, sección 3) se resuelve **sin salir del chat**: Typebot embebe el calendario de Cal.com como un paso conversacional más, no como un modal externo.
+- N8N actúa como orquestador: recibe el evento "reserva confirmada" de Cal.com vía webhook → dispara el correo de confirmación → registra el lead (email, rama de origen, tag de interés) en el CRM ligero (Notion/Airtable) → notifica a `dxcabezasg@gmail.com`.
+- Cal.com se auto-hospeda o usa el plan cloud gratuito; sin fees de Calendly por reserva.
+- Consecuencia en el flujo: el nodo "Widget de agenda embebido" de la Rama 1 se implementa como bloque nativo de Typebot (`Cal.com booking step`), manteniendo la conversación dentro de la misma burbuja de chat.
+
+**One-page scroll:**
+- Confirma el sitemap de la sección 1 tal cual: una sola URL raíz con anclas `#inicio #servicios #stack #sobre-mi #contacto`, más `/cv-danilo-cabezas.pdf` y `/privacidad` como utilitarias.
+- El header usa **scroll-spy** (resalta el link de la sección visible) en vez de rutas activas.
+- Fase 2 (`/insights`, `/casos-de-exito`) se mantiene como páginas independientes fuera del one-page, sin afectar el MVP.
+
+**Bilingüe ES/EN:**
+- Se agrega un **toggle de idioma (ES/EN)** en el header, junto al CTA principal — visible en desktop, dentro del menú hamburguesa en mobile.
+- Todo el contenido versionable por idioma: Hero, Servicios, Stack (los nombres de tecnología no se traducen), Sobre Mí, Contacto y el propio flujo del chatbot (Typebot soporta flujos duplicados por idioma, o detección de idioma del navegador con fallback a ES).
+- El CV a descargar debe existir en dos versiones (`cv-danilo-cabezas-es.pdf` / `-en.pdf`); el botón "Descargar CV" respeta el idioma activo.
+- URL: se mantiene una sola raíz (`danilocabezas.com`) con el idioma controlado por estado de UI (no se recomienda `/en` como subruta separada mientras el sitio sea one-page, para no duplicar la arquitectura del sitemap).
+
+## Supuestos que se mantienen para esta v1 (ajustables)
 - Chatbot con menú guiado (quick-replies) + fallback de texto libre, no un LLM abierto sin guardrails.
-- CTA primario del sitio: "Agendar Consultoría"; CTA secundario: "Descargar CV".
+- CTA primario del sitio: "Agendar Consultoría" / "Book a Consultation"; CTA secundario: "Descargar CV" / "Download CV".
+
+## Próximo paso
+Con sitemap, wireframes, árbol del chatbot y las 3 decisiones de arquitectura confirmadas, el siguiente entregable es el **diseño visual de alta fidelidad** (mockups por breakpoint: desktop/tablet/mobile) sobre esta misma base, ya con el toggle de idioma y el flujo Typebot+Cal.com detallado paso a paso.
