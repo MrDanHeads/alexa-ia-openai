@@ -47,6 +47,15 @@ Si hay señales de ambos o no está claro, pregunta explícitamente al usuario a
 de scaffoldear — construir el perfil equivocado significa rehacer toda la
 estructura de carpetas.
 
+**Regla de desempate cuando hay periodicidad ("cada hora", "todos los días") pero
+también ejecución local explícita** ("en mi compu", "yo lo corro", "como CLI"):
+gana el Perfil A. La periodicidad por sí sola no implica Cloudflare — solo lo
+implica cuando el usuario además quiere que corra *sin su intervención* (sin que
+él lo dispare, sin dejar su máquina prendida). En Perfil A, para cubrir esa
+periodicidad, sugiere en el README un scheduler del sistema operativo (cron en
+Linux/Mac, Task Scheduler en Windows) o un flag `--loop` con `sleep`, en vez de
+forzar una migración a Cloudflare que el usuario no pidió.
+
 ---
 
 ## Perfil A: Agente genérico (local / CLI / API)
@@ -65,20 +74,31 @@ su propio entorno.
 
 ### A.2 Arquitectura del agente
 
-Crea esta estructura modular (ajusta el nombre de carpeta raíz al contexto del
-proyecto; si ya existe una app en el repo, integra en vez de duplicar):
+Crea esta estructura modular. Ajusta el nombre de la carpeta raíz según el
+contexto:
+- Si ya existe una app en el repo, integra el agente dentro de ella (respetando
+  sus convenciones) en vez de duplicar una estructura paralela.
+- Si el repo ya tiene un nombre de proyecto claro, usa ese nombre o el destino que
+  pida el usuario como carpeta raíz.
+- Si no hay proyecto anfitrión ni nombre indicado (p. ej. un scaffold aislado o de
+  prueba), usa el nombre del agente tal cual como carpeta raíz — no la anides
+  dentro de otra carpeta genérica `agente/` de más.
+
+`main.py` y `index.ts` son alternativas, no dos archivos a crear: el entry point
+es **uno solo**, `main.py` si el stack es Python o `index.ts` si es Node.js.
 
 ```
-agente/
-├── config/           # Variables de entorno y claves API
-│   └── .env.example  # Plantilla SIN valores reales (OpenAI, Anthropic, Tavily, etc.)
-├── tools/            # Una función/archivo por herramienta ejecutable por el agente
-├── agent/            # Lógica central: memoria, orquestador, system prompt
-│   ├── memory.*
-│   ├── orchestrator.*
-│   └── prompts.*
-├── tests/            # Unit/integration tests de las herramientas y del loop
-└── main.py / index.ts  # Entry point: CLI interactivo o servidor API (FastAPI/Express)
+config/             # Variables de entorno y claves API
+├── .env.example     # Plantilla SIN valores reales (OpenAI, Anthropic, Tavily, etc.)
+tools/               # Una función/archivo por herramienta ejecutable por el agente
+agent/               # Lógica central: memoria, orquestador, system prompt
+├── memory.*
+├── orchestrator.*
+└── prompts.*
+tests/               # Unit/integration tests de las herramientas y del loop
+main.py               # Entry point si el stack es Python (CLI interactivo)
+# — o bien —
+index.ts               # Entry point si el stack es Node.js (CLI o servidor FastAPI/Express)
 ```
 
 Reglas importantes:
@@ -90,6 +110,12 @@ Reglas importantes:
 - `agent/orchestrator.*` es donde vive el loop de razonamiento (ver Perfil B para
   el mismo concepto llevado a serverless); en este perfil puede ser un loop simple
   de "leer input → decidir tool → ejecutar → responder o repetir".
+- **Qué API de tool calling usar**: si el proveedor no lo especifica el usuario,
+  usa por defecto la interfaz de tool use/function calling más estable y actual
+  del proveedor (p. ej. Chat Completions con `tools=` para OpenAI, Messages API
+  con `tools` para Anthropic) en vez de APIs más pesadas o en beta (Assistants
+  API, etc.). Si el usuario menciona explícitamente otra API, respeta esa
+  elección.
 
 ### A.3 Configuración del System Prompt
 
@@ -110,7 +136,12 @@ disperso por el código) para que sea auditable y editable sin tocar lógica.
 - Crea tests unitarios/integración para las herramientas de `tools/`.
 - Ejecuta una **prueba en frío** del agente completo (input real → tool call →
   output) para confirmar que el loop procesa la entrada y devuelve una respuesta
-  coherente.
+  coherente. "En frío" significa determinística y sin red real: usa mocks/stubs
+  para las llamadas a APIs externas y al LLM — **nunca pidas ni uses credenciales
+  reales del usuario** solo para validar el scaffold. Si el agente necesita
+  probarse de verdad contra un servicio real (Gmail, un LLM en vivo, etc.), eso
+  es una prueba end-to-end que el usuario debe pedir y ejecutar explícitamente,
+  con sus propias credenciales.
 - Estas pruebas SÍ se pueden ejecutar localmente como parte del scaffolding — no
   requieren la confirmación extra que sí exige un despliegue a producción.
 
@@ -194,19 +225,22 @@ Puntos clave de este perfil:
 
 ## Reglas comunes a ambos perfiles
 
-- **No inventes secretos ni los pidas en texto plano en el chat.** Genera siempre
-  plantillas (`.env.example`, `.dev.vars.example`) y explica cómo cargar los
-  valores reales por fuera del control de versiones.
-- **No despliegues ni ejecutes contra producción/servicios de pago en caliente**
-  (crear recursos en la nube, publicar el Worker, llamar APIs facturables con
-  datos reales) sin que el usuario lo confirme explícitamente para ese paso — sí
-  puedes correr checks de prerrequisitos y tests locales/unitarios como parte
-  normal del scaffolding.
-- **Documenta lo que generas.** Cada scaffold debe incluir un `README.md` corto
-  con: cómo instalar dependencias, cómo configurar secretos, cómo correr el
-  agente localmente (o en `wrangler dev` para el Perfil B), y cómo correr los
-  tests.
-- **Si el repo ya tiene una app/estructura propia** (como es el caso en muchos
-  repos donde se use esta skill), no la dupliques a ciegas: integra el agente
-  respetando las convenciones ya existentes (gestor de paquetes, linter, carpetas)
-  y pregunta antes de reestructurar código que no pediste tocar.
+Estas reglas resumen y refuerzan lo ya dicho en cada perfil (secretos, no-deploy,
+integración con el repo existente) — no son requisitos nuevos, son el mínimo que
+nunca debe faltar en el scaffold final:
+
+- **Secretos**: nunca en texto plano ni en el chat. Solo plantillas
+  (`.env.example`, `.dev.vars.example`) versionadas, con los valores reales fuera
+  del control de versiones.
+- **Nada de producción sin confirmación**: crear recursos en la nube, publicar el
+  Worker, o llamar APIs facturables con datos reales requiere que el usuario lo
+  confirme explícitamente para ese paso. Los checks de prerrequisitos y los tests
+  locales/unitarios sí son parte normal del scaffolding y no necesitan esa
+  confirmación extra.
+- **Documentación**: todo scaffold incluye un `README.md` corto con cómo instalar
+  dependencias, configurar secretos, correr el agente localmente (o `wrangler dev`
+  en Perfil B) y correr los tests.
+- **Integración, no duplicación**: si el repo ya tiene una app o estructura propia,
+  no la dupliques a ciegas — intégrate a sus convenciones (gestor de paquetes,
+  linter, carpetas) y pregunta antes de reestructurar código que no te pidieron
+  tocar.
