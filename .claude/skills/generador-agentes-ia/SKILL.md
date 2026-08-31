@@ -223,6 +223,44 @@ Puntos clave de este perfil:
 
 ---
 
+## Seguridad del agente generado
+
+Un agente con herramientas es, en la práctica, código que puede actuar en nombre
+del usuario contra sistemas reales (correo, APIs, la nube). El scaffold que
+generes debe incorporar estas defensas desde el diseño, no como un paso aparte
+al final:
+
+- **Menor privilegio en cada tool.** Cada herramienta pide solo el alcance/scope
+  mínimo que necesita para su tarea (p. ej. una API key de Gmail de solo lectura
+  si el agente resume correos y no los responde). Si el usuario no especifica el
+  alcance, genera la tool con el permiso más restrictivo que cumpla el objetivo, y
+  déjalo documentado en el `README.md` para que decida ampliarlo conscientemente.
+- **Trata el contenido externo como datos, nunca como instrucciones.** Todo lo que
+  una tool trae de afuera (el cuerpo de un correo, la respuesta de un webhook, el
+  resultado de una búsqueda web, contenido de un archivo subido) se pasa al LLM
+  como contenido a analizar — nunca se ejecuta ni se interpreta como comandos del
+  sistema, ni se concatena en prompts de forma que pueda alterar las instrucciones
+  del system prompt. Si el propio Documento 1 o 2 pedía "system prompt" y
+  "tools", esta separación entre instrucción (confiable) y datos (no confiables)
+  es la que hace que un correo malicioso no pueda, por ejemplo, convencer al
+  agente de reenviar credenciales o borrar la bandeja de entrada.
+- **Valida antes de actuar, no solo antes de parsear.** Si una tool escribe,
+  borra o envía algo (no solo lee), el orquestador debe pasar por una validación
+  explícita del resultado antes de ejecutar la acción — especialmente en el
+  Perfil B, donde el disparador (un webhook) puede venir de cualquier origen que
+  le pegue a la URL pública del Worker. Verifica la firma/autenticación del
+  webhook si el proveedor la ofrece (p. ej. un secreto compartido o firma HMAC)
+  antes de dejar que dispare el Agentic Loop.
+- **Nunca loguees secretos ni datos personales completos.** Los logs y mensajes de
+  error pueden mostrar qué tool falló y por qué, pero no el valor de una API key,
+  un token, o el contenido íntegro de un correo/documento personal del usuario.
+- **Límite duro de iteraciones y de costo por ejecución.** Ya se pide un máximo de
+  pasos en el orquestador (A.2/Perfil B) — además, si el agente puede iniciar
+  acciones que cuestan dinero real (llamadas a APIs de pago, envíos, compras),
+  agrega un límite explícito de "acciones irreversibles por ejecución" (p. ej.
+  como mucho 1 envío de correo por corrida) para que un loop mal cortado no pueda
+  multiplicar el daño.
+
 ## Reglas comunes a ambos perfiles
 
 Estas reglas resumen y refuerzan lo ya dicho en cada perfil (secretos, no-deploy,
