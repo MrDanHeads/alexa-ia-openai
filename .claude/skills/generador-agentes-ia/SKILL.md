@@ -188,6 +188,11 @@ disperso por el código) para que sea auditable y editable sin tocar lógica.
 > con lo que el usuario tenía en mente, ajústala según indique antes de scaffoldear
 > en repos ya existentes.**
 
+Para el nombre de la carpeta raíz aplica el mismo criterio que en A.2: si hay un
+proyecto anfitrión o un nombre indicado por el usuario, úsalo; si no hay ninguno
+(scaffold aislado), usa el nombre del agente tal cual, sin anidar otra carpeta
+genérica encima.
+
 ```
 agente-worker/
 ├── wrangler.toml          # Config del Worker: nombre, triggers (cron), bindings (KV/D1/DO)
@@ -205,7 +210,11 @@ agente-worker/
 │   └── config/
 │       └── env.d.ts         # Tipado de los bindings y secretos (Env interface)
 └── test/
-    └── *.spec.ts            # Tests con vitest + @cloudflare/vitest-pool-workers
+    └── *.spec.ts            # Tests con vitest; ideal con @cloudflare/vitest-pool-workers
+                              # (simula el runtime workerd real). Si instalarlo o
+                              # configurarlo da problemas, cae al mismo fallback que
+                              # A.4: vitest normal sobre Node con mocks manuales de
+                              # KVNamespace/fetch/LLM — mejor eso que no tener tests.
 ```
 
 Puntos clave de este perfil:
@@ -223,6 +232,11 @@ Puntos clave de este perfil:
 - **Límite de iteraciones**: el `runAgentLoop()` debe recibir un máximo de pasos
   (p. ej. 6-10) para evitar loops infinitos que agoten el tiempo de CPU del Worker
   o generen gasto innecesario de tokens.
+- **Qué API de tool calling usar**: aplica el mismo criterio que A.2 — si el
+  usuario no especifica proveedor de LLM, usa la interfaz de tool use más estable
+  del proveedor por defecto, o si tampoco especifica proveedor, deja el cliente
+  LLM como una interfaz inyectable/reemplazable (para que sea fácil conectar
+  cualquier proveedor después) en vez de asumir uno arbitrariamente.
 
 ---
 
@@ -250,10 +264,12 @@ al final:
 - **Valida antes de actuar, no solo antes de parsear.** Si una tool escribe,
   borra o envía algo (no solo lee), el orquestador debe pasar por una validación
   explícita del resultado antes de ejecutar la acción — especialmente en el
-  Perfil B, donde el disparador (un webhook) puede venir de cualquier origen que
-  le pegue a la URL pública del Worker. Verifica la firma/autenticación del
-  webhook si el proveedor la ofrece (p. ej. un secreto compartido o firma HMAC)
-  antes de dejar que dispare el Agentic Loop.
+  Perfil B cuando el Worker expone un handler `fetch()` para recibir webhooks:
+  ese endpoint es público, así que el disparador puede venir de cualquier origen
+  que le pegue a la URL. Verifica la firma/autenticación del webhook si el
+  proveedor la ofrece (p. ej. un secreto compartido o firma HMAC) antes de dejar
+  que dispare el Agentic Loop. (Esto no aplica cuando el único trigger es
+  `scheduled()`/cron — ahí no hay endpoint público que verificar.)
 - **Nunca loguees secretos ni datos personales completos.** Los logs y mensajes de
   error pueden mostrar qué tool falló y por qué, pero no el valor de una API key,
   un token, o el contenido íntegro de un correo/documento personal del usuario.
