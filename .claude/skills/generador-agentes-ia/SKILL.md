@@ -6,15 +6,18 @@ description: >
   (config/tools/agent/main), y (2) un agente autónomo serverless 24/7 en Cloudflare
   Workers con un Agentic Loop explícito activado por Cron o Webhooks. Usa esta skill
   siempre que el usuario pida crear, generar, diseñar, armar o scaffoldear un agente
-  de IA, un bot autónomo, un asistente con herramientas (tool use), un "worker" o
-  agente para Cloudflare, o un sistema con system prompt + tools + memoria +
-  orquestador — incluso si no usa literalmente las palabras "agente" o "skill". Por
-  ejemplo: "necesito un bot que revise mi correo cada hora y responda solo",
-  "quiero armar un asistente con la API de OpenAI que use herramientas", "arma un
-  worker que corra 24/7 en Cloudflare sin que yo lo dispare", "monta la estructura
+  de IA, un bot autónomo, un asistente con herramientas (tool use), un Worker de
+  Cloudflare que ejecute un agente/loop de razonamiento con un LLM, o un sistema con
+  system prompt + tools + memoria + orquestador — incluso si no usa literalmente las
+  palabras "agente" o "skill". Por ejemplo: "necesito un bot que revise mi correo
+  cada hora y responda solo", "quiero armar un asistente con la API de OpenAI que
+  use herramientas", "arma un worker que corra 24/7 en Cloudflare sin que yo lo
+  dispare, revisando algo y decidiendo con un LLM qué hacer", "monta la estructura
   de un agente con memoria y orquestador en Node/FastAPI". No se activa para pedir
   simplemente que se escriba una función o script suelto sin intención de agente
-  (loop de razonamiento, herramientas, memoria u orquestación).
+  (loop de razonamiento, herramientas, memoria u orquestación), ni para crear un
+  Worker de Cloudflare genérico (un endpoint HTTP, un proxy, un cron job simple)
+  que no involucre un LLM tomando decisiones.
 ---
 
 # Generador de Agentes de IA Producción-Ready
